@@ -1,11 +1,16 @@
-const fetch = require('node-fetch');
+// netlify/functions/get-fact.js
 
 exports.handler = async function(event, context) {
-    // 1. Get the API Key securely from Netlify Environment Variables
+    // 1. Get Key
     const API_KEY = process.env.GEMINI_API_KEY;
+    
+    // Security Check: Did the key load?
+    if (!API_KEY) {
+        console.error("Error: API Key is missing in Environment Variables.");
+        return { statusCode: 500, body: JSON.stringify({ error: "Server Configuration Error" }) };
+    }
 
-    // 2. Parse the incoming data from the website
-    // We wrap this in a try/catch in case the request body is empty
+    // 2. Parse Input
     let city, lat, lng;
     try {
         const body = JSON.parse(event.body);
@@ -13,36 +18,25 @@ exports.handler = async function(event, context) {
         lat = body.lat;
         lng = body.lng;
     } catch (e) {
-        return { statusCode: 400, body: JSON.stringify({ error: "Invalid Request Body" }) };
+        return { statusCode: 400, body: JSON.stringify({ error: "Invalid JSON input" }) };
     }
 
-    // 3. The Prompt for Gemini 2.0 Flash
+    // 3. The Prompt
     const prompt = `
         I am a user exploring a 3D globe. I just clicked on a location: 
         Name: ${city}
         Coordinates: ${lat}, ${lng}.
-        
-        Please generate 3 interesting, fun, or surprising trivia facts about this specific location.
-        
+        Generate 3 interesting trivia facts about this location.
         Rules:
         1. Keep each fact under 30 words.
-        2. Format the output as a strict JSON array of objects. 
-        3. Each object must have two properties: 
-           - "text": The fact string.
-           - "source_term": A short search term to verify this fact (e.g. "Eiffel Tower height").
-        
-        Example Output:
-        [
-            {"text": "The Eiffel Tower grows in summer.", "source_term": "Eiffel Tower thermal expansion"},
-            {"text": "Fact 2 text here.", "source_term": "Fact 2 search term"}
-        ]
-        
-        Do not include markdown formatting like \`\`\`json. Just the raw array.
+        2. Format output as a JSON array of objects with 'text' and 'source_term'.
+        Example: [{"text": "Fact...", "source_term": "Search..."}]
+        Do not include markdown.
     `;
 
-    // 4. API Configuration
-    // Note: using gemini-2.0-flash-exp (or whichever alias is active for 2.0)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${API_KEY}`;
+    // 4. API Call (Using Native Fetch - No 'require' needed)
+    // Switching to the stable 1.5 Flash model to ensure reliability
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
     try {
         const response = await fetch(url, {
@@ -52,21 +46,15 @@ exports.handler = async function(event, context) {
         });
 
         if (!response.ok) {
+            console.error(`Google API Error: ${response.status} ${response.statusText}`);
             return { statusCode: response.status, body: JSON.stringify({ error: "Google API Error" }) };
         }
 
         const data = await response.json();
-        
-        // Pass the data back to your frontend
-        return {
-            statusCode: 200,
-            body: JSON.stringify(data)
-        };
+        return { statusCode: 200, body: JSON.stringify(data) };
 
     } catch (error) {
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: "Failed to reach Google AI server" })
-        };
+        console.error("Function Crash:", error);
+        return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
     }
 };
