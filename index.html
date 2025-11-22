@@ -54,7 +54,9 @@
             border: 1px solid rgba(255,255,255,0.1);
             transition: all 0.3s ease;
         }
-
+        <div style="margin-top: 10px; font-size: 0.7rem; text-align: center; opacity: 0.6;">
+    <a href="privacy.html" style="color: inherit; text-decoration: none;">Privacy Policy</a>
+</div>
         h1 { margin: 0 0 10px 0; font-size: 1.5rem; letter-spacing: -0.5px; }
         p { line-height: 1.5; font-size: 0.95rem; margin-bottom: 10px; min-height: 60px; }
         
@@ -386,6 +388,25 @@
                 map.setStyle('mapbox://styles/mapbox/satellite-streets-v12'); 
             }
         }
+        // Check if user has already accepted cookies
+if (!localStorage.getItem('cookiesAccepted')) {
+    document.getElementById('cookie-banner').style.display = 'block';
+}
+
+// Handle Acceptance
+document.getElementById('accept-cookies').addEventListener('click', function() {
+    localStorage.setItem('cookiesAccepted', 'true');
+    document.getElementById('cookie-banner').style.display = 'none';
+});
     </script>
+    <div id="cookie-banner" style="display:none; position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(15, 23, 42, 0.95); color: white; padding: 15px; z-index: 9999; text-align: center; border-top: 1px solid #38bdf8;">
+    <p style="margin: 0 0 10px 0; font-size: 0.9rem;">
+        We use cookies to personalize content and ads, and to analyze our traffic. 
+        By continuing to use our site, you consent to our <a href="privacy.html" style="color: #38bdf8; text-decoration: underline;">Privacy Policy</a>.
+    </p>
+    <button id="accept-cookies" style="background: #38bdf8; color: white; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+        I Accept
+    </button>
+</div>
 </body>
 </html>
