@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 
 exports.handler = async function(event, context) {
     // 1. Get the API Key securely from Netlify Environment Variables
-    const API_KEY = AIzaSyA2BAwrVD6O1Y_LpfFLWsiswtmww5IWLb4;
+    const API_KEY = process.env.GEMINI_API_KEY;
 
     // 2. Parse the incoming data from the website
     // We wrap this in a try/catch in case the request body is empty
@@ -42,7 +42,7 @@ exports.handler = async function(event, context) {
 
     // 4. API Configuration
     // Note: using gemini-2.0-flash-exp (or whichever alias is active for 2.0)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${AIzaSyA2BAwrVD6O1Y_LpfFLWsiswtmww5IWLb4}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${API_KEY}`;
 
     try {
         const response = await fetch(url, {

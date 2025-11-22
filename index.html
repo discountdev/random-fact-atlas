@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FactAtlas | Explore the World</title>
+    <title>Random Fact Atlas | Explore the World</title>
     
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
@@ -271,7 +271,7 @@
         // --- BACKEND CALL ---
         async function fetchAiFacts(city, lat, lng) {
             const statusText = document.getElementById('fact-text');
-            statusText.innerText = "Consulting AI...";
+            statusText.innerText = "Finding random facts...";
             
             // Point to Netlify Function
             const url = '/.netlify/functions/get-fact'; 

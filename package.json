@@ -1,5 +1,5 @@
 {
-  "name": "fact-atlas",
+  "name": "random-fact-atlas",
   "version": "1.0.0",
   "description": "3D Interactive Globe with AI Facts",
   "dependencies": {
