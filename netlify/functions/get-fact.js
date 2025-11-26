@@ -1,42 +1,47 @@
 // netlify/functions/get-fact.js
 
 exports.handler = async function(event, context) {
-    // 1. Get Key
     const API_KEY = process.env.GEMINI_API_KEY;
-    
-    // Security Check: Did the key load?
     if (!API_KEY) {
-        console.error("Error: API Key is missing in Environment Variables.");
         return { statusCode: 500, body: JSON.stringify({ error: "Server Configuration Error" }) };
     }
 
-    // 2. Parse Input
-    let city, lat, lng;
+    let city, lat, lng, language;
     try {
         const body = JSON.parse(event.body);
         city = body.city;
         lat = body.lat;
         lng = body.lng;
+        // Default to English if no language is sent
+        language = body.language || "English";
     } catch (e) {
-        return { statusCode: 400, body: JSON.stringify({ error: "Invalid JSON input" }) };
+        return { statusCode: 400, body: JSON.stringify({ error: "Invalid JSON" }) };
     }
 
-    // 3. The Prompt
+    // UPDATED PROMPT: Requesting ONE detailed fact in the specific language
     const prompt = `
         I am a user exploring a 3D globe. I just clicked on a location: 
         Name: ${city}
         Coordinates: ${lat}, ${lng}.
-        Generate 3 interesting trivia facts about this location.
+        
+        Generate 1 unique, detailed, and interesting trivia fact about this location.
+        
         Rules:
-        1. Keep each fact under 30 words.
-        2. Format output as a JSON array of objects with 'text' and 'source_term'.
-        Example: [{"text": "Fact...", "source_term": "Search..."}]
-        Do not include markdown.
+        1. Language: Write the fact in ${language}.
+        2. Length: Write a detailed paragraph (approx 50-80 words).
+        3. Tone: Educational but engaging.
+        4. Format: Return a strictly valid JSON object (NOT a list, just one object).
+        
+        JSON Structure:
+        {
+           "text": "The detailed fact text...",
+           "source_term": "A short search term to verify this fact"
+        }
+        
+        Do not include markdown formatting like \`\`\`json.
     `;
 
-    // 4. API Call (Using Native Fetch - No 'require' needed)
-    // Switching to the stable 1.5 Flash model to ensure reliability
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
     try {
         const response = await fetch(url, {
@@ -46,7 +51,6 @@ exports.handler = async function(event, context) {
         });
 
         if (!response.ok) {
-            console.error(`Google API Error: ${response.status} ${response.statusText}`);
             return { statusCode: response.status, body: JSON.stringify({ error: "Google API Error" }) };
         }
 
@@ -54,7 +58,6 @@ exports.handler = async function(event, context) {
         return { statusCode: 200, body: JSON.stringify(data) };
 
     } catch (error) {
-        console.error("Function Crash:", error);
         return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
     }
 };
