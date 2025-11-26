@@ -12,13 +12,13 @@ exports.handler = async function(event, context) {
         city = body.city;
         lat = body.lat;
         lng = body.lng;
-        // Default to English if no language is sent
+        // Default to English if undefined
         language = body.language || "English";
     } catch (e) {
         return { statusCode: 400, body: JSON.stringify({ error: "Invalid JSON" }) };
     }
 
-    // UPDATED PROMPT: Requesting ONE detailed fact in the specific language
+    // PROMPT
     const prompt = `
         I am a user exploring a 3D globe. I just clicked on a location: 
         Name: ${city}
@@ -26,16 +26,18 @@ exports.handler = async function(event, context) {
         
         Generate 1 unique, detailed, and interesting trivia fact about this location.
         
+        CRITICAL INSTRUCTION:
+        You MUST write the response in this language: ${language}.
+        
         Rules:
-        1. Language: Write the fact in ${language}.
-        2. Length: Write a detailed paragraph (approx 50-80 words).
-        3. Tone: Educational but engaging.
-        4. Format: Return a strictly valid JSON object (NOT a list, just one object).
+        1. Length: Write a detailed paragraph (approx 50-80 words).
+        2. Tone: Educational but engaging.
+        3. Format: Return a strictly valid JSON object.
         
         JSON Structure:
         {
-           "text": "The detailed fact text...",
-           "source_term": "A short search term to verify this fact"
+           "text": "(The detailed fact text in ${language})",
+           "source_term": "(A short English search term to verify this fact)"
         }
         
         Do not include markdown formatting like \`\`\`json.
