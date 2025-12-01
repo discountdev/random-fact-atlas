@@ -1,20 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JQ346WNXC3"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-JQ346WNXC3');
-    </script>
-
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3920233169460204"
-     crossorigin="anonymous"></script>
-     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Random Fact Atlas | Explore the World</title>
@@ -60,16 +46,19 @@
         
         .control-btn:hover { opacity: 0.9; }
 
-        /* --- UI PANEL --- */
+        /* --- UI PANEL (LARGER) --- */
         .ui-container {
-            position: absolute; top: 20px; left: 20px; width: 400px; max-width: 90%; z-index: 1;
+            position: absolute; top: 20px; left: 20px; 
+            width: 500px; /* INCREASED WIDTH */
+            max-width: 90%; 
+            z-index: 1;
             display: flex; flex-direction: column; gap: 15px;
         }
 
         .panel {
             background: var(--panel-bg);
             backdrop-filter: blur(10px);
-            padding: 25px; /* Larger padding */
+            padding: 30px; /* Increased padding */
             border-radius: 16px;
             box-shadow: var(--shadow);
             border: 1px solid rgba(255,255,255,0.1);
@@ -80,11 +69,11 @@
         .subtitle { font-size: 0.8rem; opacity: 0.7; margin-bottom: 15px; display: block;}
 
         /* Larger Text for Facts */
-        p#fact-text { 
-            line-height: 1.6; 
-            font-size: 1.05rem; /* Increased size */
+        p#fact-text, #welcome-text p { 
+            line-height: 1.7; 
+            font-size: 1.1rem; /* Increased size */
             margin-bottom: 15px; 
-            min-height: 80px; 
+            min-height: 120px; /* Increased min height */
         }
         
         .location-name { font-weight: bold; color: var(--accent); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; display: block; margin-bottom: 5px;}
@@ -104,15 +93,7 @@
         .btn-primary { background: var(--accent); color: white; }
         .btn-secondary { background: rgba(128,128,128,0.2); color: var(--text-color); }
 
-        /* --- AD BANNER --- */
-        .ad-banner {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            width: 728px; height: 90px; background: rgba(0,0,0,0.2);
-            border: 1px dashed var(--text-color); display: flex; align-items: center;
-            justify-content: center; font-size: 0.8rem; opacity: 0.6; border-radius: 8px; z-index: 1;
-        }
-
-        /* --- ABOUT MODAL (CRITICAL FOR ADSENSE) --- */
+        /* --- ABOUT MODAL (STILL USED FOR INFO, BUT MAIN TEXT MOVED) --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 999;
@@ -125,9 +106,10 @@
             position: relative; line-height: 1.7;
         }
         .close-modal { position: absolute; top: 15px; right: 20px; cursor: pointer; font-size: 1.5rem; border:none; background:none; color: var(--text-color);}
+        
+        /* Remove the ad-banner CSS, as the element is removed */
 
         @media (max-width: 600px) {
-            .ad-banner { width: 300px; height: 50px; }
             .ui-container { width: auto; right: 20px; }
             .top-controls { flex-wrap: wrap; justify-content: flex-end; }
         }
@@ -156,11 +138,24 @@
     <div class="ui-container">
         <div class="panel">
             <h1>Random Fact Atlas</h1>
-            <span class="subtitle">Explore the hidden history of the world.</span>
+            <span class="subtitle">Explore the hidden history of the world using AI.</span>
             
             <div id="content-area">
-                <span class="location-name">Welcome</span>
-                <p id="fact-text">Spin the globe and click any city to discover its secrets, or let fate decide.</p>
+                <div id="welcome-text">
+                    <span class="location-name">Welcome to the Atlas</span>
+                    <p>
+                        This interactive 3D globe is your personal guide to the world's most interesting trivia. 
+                        We use advanced AI to generate unique, detailed facts about any location you click. 
+                        Unlike traditional maps, the Random Fact Atlas focuses on the stories, history, and culture behind the coordinates.
+                    </p>
+                    <p>
+                        Simply spin the globe, click a location, and a new, comprehensive fact will appear instantly. 
+                        Use the "New Fact" button to generate a fresh piece of trivia about the same spot, or click "Surprise Me" to let the atlas choose a hidden gem for you.
+                    </p>
+                    <hr style="border-color: rgba(128,128,128,0.2); margin: 20px 0;">
+                </div>
+                <span class="location-name" id="location-name-dynamic" style="display:none;"></span>
+                <p id="fact-text" style="display:none;"></p>
                 <a id="source-link" class="source-link" href="#" target="_blank" style="display:none;">🔎 Verify this fact</a>
             </div>
 
@@ -173,10 +168,6 @@
                 <a href="privacy.html" style="color: inherit; text-decoration: none;">Privacy Policy</a>
             </div>
         </div>
-    </div>
-
-    <div class="ad-banner">
-        Google AdSense Banner
     </div>
 
     <div class="modal-overlay" id="aboutModal">
@@ -240,6 +231,11 @@
         // --- INTERACTION ---
         map.on('click', async (e) => {
             const { lng, lat } = e.lngLat;
+            // Hide welcome text and show fact area
+            document.getElementById('welcome-text').style.display = 'none';
+            document.getElementById('location-name-dynamic').style.display = 'block';
+            document.getElementById('fact-text').style.display = 'block';
+
             dropPin(lng, lat);
             handleLocationSelect(lng, lat);
         });
@@ -267,12 +263,12 @@
                     // Save for "New Fact" button
                     currentLocation = { name: placeName, lat: lat, lng: lng };
                     
-                    document.querySelector('.location-name').innerText = fullName;
+                    document.getElementById('location-name-dynamic').innerText = fullName;
                     
                     // Call Backend
                     fetchAiFact(placeName, lat, lng);
                 } else {
-                    document.querySelector('.location-name').innerText = "Unknown Location";
+                    document.getElementById('location-name-dynamic').innerText = "Unknown Location";
                     document.getElementById('fact-text').innerText = "You clicked on a very remote spot! No cities found here.";
                     currentLocation = null;
                 }
@@ -281,7 +277,7 @@
             }
         }
 
-        // --- BACKEND CALL (MODIFIED FOR SINGLE FACT + LANGUAGE) ---
+        // --- BACKEND CALL ---
         async function fetchAiFact(city, lat, lng) {
             const statusText = document.getElementById('fact-text');
             const selectedLang = document.getElementById('lang-select').value;
@@ -302,7 +298,7 @@
 
                 const data = await response.json();
                 
-                // Parse AI Output (Now expecting a Single Object, not an Array)
+                // Parse AI Output (Expects a single JSON Object)
                 const aiText = data.candidates[0].content.parts[0].text;
                 
                 // Regex to find the JSON object { ... }
@@ -334,7 +330,6 @@
         // --- BUTTONS ---
         function refreshFact() {
             if (currentLocation) {
-                // Just call the API again! The AI is random enough to give a new fact.
                 fetchAiFact(currentLocation.name, currentLocation.lat, currentLocation.lng);
             } else {
                 flyToRandom();
@@ -342,13 +337,17 @@
         }
         
         function changeLanguage() {
-            // If we are already looking at a city, refresh the fact in the new language
             if (currentLocation) {
                 refreshFact();
             }
         }
 
         function flyToRandom() {
+            // Hide welcome text and show fact area
+            document.getElementById('welcome-text').style.display = 'none';
+            document.getElementById('location-name-dynamic').style.display = 'block';
+            document.getElementById('fact-text').style.display = 'block';
+
             const randomCity = majorCities[Math.floor(Math.random() * majorCities.length)];
             dropPin(randomCity.lng, randomCity.lat);
             handleLocationSelect(randomCity.lng, randomCity.lat);
