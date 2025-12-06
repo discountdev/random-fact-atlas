@@ -3,33 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3920233169460204"
+     crossorigin="anonymous"></script>
     <title>About - Random Fact Atlas</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; line-height: 1.6; padding: 40px; max-width: 800px; margin: 0 auto; background: #f8fafc; color: #333; }
-        nav { margin-bottom: 40px; border-bottom: 1px solid #ddd; padding-bottom: 20px; }
-        nav a { margin-right: 20px; text-decoration: none; color: #0284c7; font-weight: bold; }
-        h1 { color: #0f172a; }
-        .footer { margin-top: 50px; font-size: 0.9rem; color: #666; border-top: 1px solid #ddd; padding-top: 20px; }
+        /* THEME VARIABLES */
+        :root {
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --panel-bg: rgba(15, 23, 42, 0.95);
+            --accent: #38bdf8;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            margin: 0;
+            background-color: var(--bg-color); /* Dark Background */
+            color: var(--text-color);
+            min-height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* THEMED CONTAINER */
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        nav { margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; }
+        nav a { margin-right: 20px; text-decoration: none; color: var(--text-color); font-weight: 600; }
+        nav a:hover { color: var(--accent); }
+        nav a.active { color: var(--accent); }
+
+        h1 { color: var(--accent); margin-top: 0; }
+        h2 { margin-top: 30px; color: var(--text-color); }
+        
+        .footer { margin-top: 50px; font-size: 0.9rem; opacity: 0.6; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
     </style>
 </head>
 <body>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="about.html">About Us</a>
-        <a href="privacy.html">Privacy Policy</a>
-    </nav>
+    <div class="container">
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="about.html" class="active">About Us</a>
+            <a href="privacy.html">Privacy Policy</a>
+        </nav>
 
-    <h1>About Random Fact Atlas</h1>
-    <p>Random Fact Atlas is an educational resource designed to make geography and history accessible through interactive technology. By combining high-resolution 3D mapping from Mapbox with the generative capabilities of Google's Gemini AI, we provide a unique window into the world.</p>
-    
-    <h2>Our Mission</h2>
-    <p>We believe that every location on Earth has a story. Traditional maps show you <em>where</em> places are, but they rarely tell you <em>what</em> happened there. Our goal is to bridge that gap, providing instant, verified, and interesting trivia about any coordinate on the globe.</p>
+        <h1>About Random Fact Atlas</h1>
+        <p>Random Fact Atlas is an educational resource designed to make geography and history accessible through interactive technology. By combining high-resolution 3D mapping from Mapbox with the generative capabilities of Google's Gemini AI, we provide a unique window into the world.</p>
+        
+        <h2>Our Mission</h2>
+        <p>We believe that every location on Earth has a story. Traditional maps show you <em>where</em> places are, but they rarely tell you <em>what</em> happened there. Our goal is to bridge that gap, providing instant, verified, and interesting trivia about any coordinate on the globe.</p>
 
-    <h2>How It Works</h2>
-    <p>When you click a location on our globe, our system performs a reverse-geocoding lookup to identify the nearest city or landmark. This data is then processed by our AI engine to retrieve historical facts, cultural insights, or geographical anomalies specific to that region.</p>
+        <h2>How It Works</h2>
+        <p>When you click a location on our globe, our system performs a reverse-geocoding lookup to identify the nearest city or landmark. This data is then processed by our AI engine to retrieve historical facts, cultural insights, or geographical anomalies specific to that region.</p>
 
-    <div class="footer">
-        &copy; 2025 Random Fact Atlas.
+        <div class="footer">
+            &copy; 2025 Random Fact Atlas.
+        </div>
     </div>
 </body>
 </html>
