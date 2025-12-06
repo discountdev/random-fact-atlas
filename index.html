@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Fact Atlas | Explore the World</title>
+    <title>Random Fact Atlas | Explore World Trivia</title>
     
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3920233169460204"
-     crossorigin="anonymous"></script>
+
     <style>
         :root {
             --bg-color: #0f172a;
@@ -29,64 +28,46 @@
         body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; overflow: hidden; color: var(--text-color); }
         #map { position: absolute; top: 0; bottom: 0; width: 100%; }
 
-        /* --- TOP RIGHT CONTROLS --- */
-        .top-controls {
+        /* --- NAVIGATION BAR (NEW REQUIREMENT) --- */
+        .navbar {
             position: absolute; top: 20px; right: 20px; z-index: 2;
             display: flex; gap: 10px; align-items: center;
+            background: var(--panel-bg); padding: 10px 15px; border-radius: 12px;
+            box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.1);
         }
+        .nav-link { color: var(--text-color); text-decoration: none; font-size: 0.9rem; font-weight: 600; margin: 0 8px; }
+        .nav-link:hover { color: var(--accent); }
 
-        .control-btn, select {
-            background: var(--panel-bg); color: var(--text-color);
-            border: 1px solid rgba(128,128,128,0.3);
-            padding: 8px 12px; border-radius: 8px;
-            backdrop-filter: blur(10px); cursor: pointer;
-            font-family: inherit; font-size: 0.9rem;
-            box-shadow: var(--shadow);
-            outline: none;
-        }
-        
-        .control-btn:hover { opacity: 0.9; }
-
-        /* --- UI PANEL (LARGER) --- */
+        /* --- UI PANEL --- */
         .ui-container {
             position: absolute; top: 20px; left: 20px; 
-            width: 500px; /* INCREASED WIDTH */
-            max-width: 90%; 
-            z-index: 1;
+            width: 450px; max-width: 90%; z-index: 1;
             display: flex; flex-direction: column; gap: 15px;
+            max-height: 90vh; overflow-y: auto; /* Allow scrolling if content is long */
         }
 
         .panel {
             background: var(--panel-bg);
             backdrop-filter: blur(10px);
-            padding: 30px; /* Increased padding */
+            padding: 25px;
             border-radius: 16px;
             box-shadow: var(--shadow);
             border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.3s ease;
         }
 
-        h1 { margin: 0 0 5px 0; font-size: 1.6rem; letter-spacing: -0.5px; }
-        .subtitle { font-size: 0.8rem; opacity: 0.7; margin-bottom: 15px; display: block;}
+        h1 { margin: 0 0 5px 0; font-size: 1.5rem; letter-spacing: -0.5px; }
+        .subtitle { font-size: 0.85rem; opacity: 0.8; margin-bottom: 20px; display: block; line-height: 1.5;}
 
-        /* Larger Text for Facts */
-        p#fact-text, #welcome-text p { 
-            line-height: 1.7; 
-            font-size: 1.1rem; /* Increased size */
-            margin-bottom: 15px; 
-            min-height: 120px; /* Increased min height */
-        }
-        
+        /* --- STATIC CONTENT SECTION (FOR CRAWLERS) --- */
+        .static-content h3 { font-size: 1rem; color: var(--accent); margin-top: 0; }
+        .static-fact { font-size: 0.9rem; margin-bottom: 15px; border-left: 3px solid var(--accent); padding-left: 10px; }
+
+        /* --- DYNAMIC FACT AREA --- */
+        #dynamic-area { display: none; } /* Hidden until first click */
+        p#fact-text { line-height: 1.6; font-size: 1.05rem; margin-bottom: 15px; min-height: 80px; }
         .location-name { font-weight: bold; color: var(--accent); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; display: block; margin-bottom: 5px;}
 
-        .source-link {
-            display: inline-block; font-size: 0.8rem; color: var(--accent);
-            text-decoration: none; border-bottom: 1px dotted var(--accent);
-            margin-bottom: 15px; cursor: pointer;
-        }
-        .source-link:hover { opacity: 0.8; }
-
-        .btn-group { display: flex; gap: 10px; margin-top: 5px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
         button.action-btn {
             flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: transform 0.1s;
         }
@@ -94,25 +75,11 @@
         .btn-primary { background: var(--accent); color: white; }
         .btn-secondary { background: rgba(128,128,128,0.2); color: var(--text-color); }
 
-        /* --- ABOUT MODAL (STILL USED FOR INFO, BUT MAIN TEXT MOVED) --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 999;
-            display: none; align-items: center; justify-content: center;
-            backdrop-filter: blur(5px);
-        }
-        .modal-content {
-            background: var(--bg-color); padding: 30px; border-radius: 12px;
-            max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;
-            position: relative; line-height: 1.7;
-        }
-        .close-modal { position: absolute; top: 15px; right: 20px; cursor: pointer; font-size: 1.5rem; border:none; background:none; color: var(--text-color);}
-        
-        /* Remove the ad-banner CSS, as the element is removed */
+        .theme-toggle { cursor: pointer; background: none; border: none; font-size: 1.2rem; margin-left: 10px; }
 
         @media (max-width: 600px) {
-            .ui-container { width: auto; right: 20px; }
-            .top-controls { flex-wrap: wrap; justify-content: flex-end; }
+            .navbar { top: auto; bottom: 20px; right: 20px; left: 20px; justify-content: center; }
+            .ui-container { top: 20px; left: 20px; right: 20px; width: auto; }
         }
     </style>
 </head>
@@ -120,100 +87,70 @@
 
     <div id="map"></div>
 
-    <div class="top-controls">
-        <select id="lang-select" onchange="changeLanguage()">
-            <option value="English">🇬🇧 English</option>
-            <option value="Spanish">🇪🇸 Español</option>
-            <option value="French">🇫🇷 Français</option>
-            <option value="German">🇩🇪 Deutsch</option>
-            <option value="Japanese">🇯🇵 日本語</option>
-            <option value="Portuguese">🇧🇷 Português</option>
-            <option value="Italian">🇮🇹 Italiano</option>
+    <div class="navbar">
+        <a href="about.html" class="nav-link">About</a>
+        <a href="privacy.html" class="nav-link">Privacy</a>
+        <select id="lang-select" onchange="changeLanguage()" style="background:transparent; color:inherit; border:none; outline:none; font-weight:bold; cursor:pointer;">
+            <option value="English">🇬🇧 EN</option>
+            <option value="Spanish">🇪🇸 ES</option>
+            <option value="French">🇫🇷 FR</option>
+            <option value="German">🇩🇪 DE</option>
         </select>
-        
-        <button class="control-btn" onclick="openModal('aboutModal')">ℹ️ About</button>
-        
-        <button class="control-btn" onclick="toggleTheme()">🌗</button>
+        <button class="theme-toggle" onclick="toggleTheme()">🌗</button>
     </div>
 
     <div class="ui-container">
         <div class="panel">
             <h1>Random Fact Atlas</h1>
-            <span class="subtitle">Explore the hidden history of the world using AI.</span>
+            <span class="subtitle">An interactive 3D guide to world history, geography, and trivia. Spin the globe to discover the secrets of our planet.</span>
             
-            <div id="content-area">
-                <div id="welcome-text">
-                    <span class="location-name">Welcome to the Atlas</span>
-                    <p>
-                        This interactive 3D globe is your personal guide to the world's most interesting trivia. 
-                        We use advanced AI to generate unique, detailed facts about any location you click. 
-                        Unlike traditional maps, the Random Fact Atlas focuses on the stories, history, and culture behind the coordinates.
-                    </p>
-                    <p>
-                        Simply spin the globe, click a location, and a new, comprehensive fact will appear instantly. 
-                        Use the "New Fact" button to generate a fresh piece of trivia about the same spot, or click "Surprise Me" to let the atlas choose a hidden gem for you.
-                    </p>
-                    <hr style="border-color: rgba(128,128,128,0.2); margin: 20px 0;">
+            <div id="static-welcome">
+                <div class="static-content">
+                    <h3>Did you know?</h3>
+                    <div class="static-fact">
+                        <strong>Tokyo, Japan:</strong> Tokyo was originally a small fishing village named Edo. It wasn't until 1868, when the Emperor moved there from Kyoto, that it was renamed Tokyo, meaning "Eastern Capital."
+                    </div>
+                    <div class="static-fact">
+                        <strong>Cairo, Egypt:</strong> The Great Pyramid of Giza was the tallest man-made structure in the world for over 3,800 years until the Lincoln Cathedral was built in England in 1311.
+                    </div>
+                    <p style="font-size: 0.8rem; opacity: 0.8;">Click "Surprise Me" or tap anywhere on the map to generate a new fact.</p>
                 </div>
-                <span class="location-name" id="location-name-dynamic" style="display:none;"></span>
-                <p id="fact-text" style="display:none;"></p>
-                <a id="source-link" class="source-link" href="#" target="_blank" style="display:none;">🔎 Verify this fact</a>
+            </div>
+
+            <div id="dynamic-area">
+                <span class="location-name" id="location-name-dynamic">Location</span>
+                <p id="fact-text"></p>
+                <a id="source-link" href="#" target="_blank" style="color: var(--accent); font-size: 0.8rem;">🔎 Verify this fact</a>
             </div>
 
             <div class="btn-group">
                 <button class="action-btn btn-primary" onclick="flyToRandom()">Surprise Me</button>
-                <button class="action-btn btn-secondary" id="btn-new-fact" onclick="refreshFact()">New Fact</button>
+                <button class="action-btn btn-secondary" onclick="refreshFact()">New Fact</button>
             </div>
-
-            <div style="margin-top: 15px; font-size: 0.75rem; text-align: center; opacity: 0.6;">
-                <a href="privacy.html" style="color: inherit; text-decoration: none;">Privacy Policy</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="aboutModal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeModal('aboutModal')">&times;</button>
-            <h2>About Random Fact Atlas</h2>
-            <p>Welcome to the ultimate tool for curious minds. Random Fact Atlas is an interactive educational platform designed to make geography and history accessible to everyone.</p>
-            <h3>How It Works</h3>
-            <p>Our platform combines advanced 3D mapping technology with Generative AI to deliver unique, verified trivia about any location on Earth. Whether you are a student, a traveler, or just exploring from home, our tool provides deep insights into the culture, history, and geography of our planet.</p>
-            <h3>Features</h3>
-            <ul>
-                <li><strong>AI-Powered Insights:</strong> Every fact is generated in real-time, ensuring you never run out of new things to learn.</li>
-                <li><strong>Global Coverage:</strong> From major capitals to remote villages, our map covers the entire globe.</li>
-                <li><strong>Multi-Language Support:</strong> Learn in your native language with our built-in translation engine.</li>
-            </ul>
-            <p>We are committed to providing a free, accessible learning resource for the world.</p>
         </div>
     </div>
 
     <div id="cookie-banner" style="display:none; position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(15, 23, 42, 0.95); color: white; padding: 15px; z-index: 9999; text-align: center; border-top: 1px solid #38bdf8;">
         <p style="margin: 0 0 10px 0; font-size: 0.9rem;">
-            We use cookies to personalize content and ads. By using our site, you consent to our <a href="privacy.html" style="color: #38bdf8;">Privacy Policy</a>.
+            We use cookies to personalize content. <a href="privacy.html" style="color: #38bdf8;">Privacy Policy</a>.
         </p>
-        <button id="accept-cookies" style="background: #38bdf8; color: white; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">I Accept</button>
+        <button id="accept-cookies" style="background: #38bdf8; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer;">I Accept</button>
     </div>
 
     <script>
-        // --- CONFIGURATION ---
         mapboxgl.accessToken = 'pk.eyJ1IjoiZGlzY291bnRkZXYiLCJhIjoiY21pOHRnbWl6MDNtajJrcTA0M250ZjFpeiJ9.IQHxOtZGRv3VEz_Ifv1v4w'; 
 
         let currentTheme = 'dark';
-        let currentLocation = null; // Object: {name, lat, lng}
-        let currentMarker = null; 
+        let currentLocation = null;
 
         const majorCities = [
             {name: "New York, USA", lng: -74.0060, lat: 40.7128},
             {name: "Tokyo, Japan", lng: 139.6917, lat: 35.6895},
             {name: "London, UK", lng: -0.1276, lat: 51.5074},
             {name: "Paris, France", lng: 2.3522, lat: 48.8566},
-            {name: "Cairo, Egypt", lng: 31.2357, lat: 30.0444},
-            {name: "Sydney, Australia", lng: 151.2093, lat: -33.8688},
-            {name: "Rio de Janeiro, Brazil", lng: -43.1729, lat: -22.9068}
+            {name: "Cairo, Egypt", lng: 31.2357, lat: 30.0444}
         ];
 
-        // --- MAP INIT ---
         const map = new mapboxgl.Map({
             container: 'map',
             style: 'mapbox://styles/mapbox/satellite-streets-v12',
@@ -223,31 +160,22 @@
         });
 
         map.on('style.load', () => {
-            map.setFog({
-                'color': 'rgb(186, 210, 235)', 'high-color': 'rgb(36, 92, 223)', 
-                'horizon-blend': 0.02, 'space-color': 'rgb(11, 11, 25)', 'star-intensity': 0.6 
-            });
+            map.setFog({ 'color': 'rgb(186, 210, 235)', 'high-color': 'rgb(36, 92, 223)', 'horizon-blend': 0.02, 'space-color': 'rgb(11, 11, 25)', 'star-intensity': 0.6 });
         });
 
         // --- INTERACTION ---
-        map.on('click', async (e) => {
-            const { lng, lat } = e.lngLat;
-            // Hide welcome text and show fact area
-            document.getElementById('welcome-text').style.display = 'none';
-            document.getElementById('location-name-dynamic').style.display = 'block';
-            document.getElementById('fact-text').style.display = 'block';
+        function switchToDynamicView() {
+            document.getElementById('static-welcome').style.display = 'none';
+            document.getElementById('dynamic-area').style.display = 'block';
+        }
 
-            dropPin(lng, lat);
+        map.on('click', async (e) => {
+            switchToDynamicView();
+            const { lng, lat } = e.lngLat;
             handleLocationSelect(lng, lat);
         });
 
-        function dropPin(lng, lat) {
-            if (currentMarker) currentMarker.remove();
-            currentMarker = new mapboxgl.Marker({ color: "#FF4444" }).setLngLat([lng, lat]).addTo(map);
-        }
-
         async function handleLocationSelect(lng, lat) {
-            // UI Reset
             document.getElementById('fact-text').innerText = "Locating...";
             document.getElementById('source-link').style.display = 'none';
             
@@ -260,75 +188,49 @@
                 if (data.features && data.features.length > 0) {
                     const placeName = data.features[0].text; 
                     const fullName = data.features[0].place_name;
-                    
-                    // Save for "New Fact" button
                     currentLocation = { name: placeName, lat: lat, lng: lng };
                     
                     document.getElementById('location-name-dynamic').innerText = fullName;
-                    
-                    // Call Backend
                     fetchAiFact(placeName, lat, lng);
                 } else {
                     document.getElementById('location-name-dynamic').innerText = "Unknown Location";
-                    document.getElementById('fact-text').innerText = "You clicked on a very remote spot! No cities found here.";
+                    document.getElementById('fact-text').innerText = "You clicked on a very remote spot! Try clicking closer to a city.";
                     currentLocation = null;
                 }
-            } catch (error) {
-                console.error(error);
-            }
+            } catch (error) { console.error(error); }
         }
 
-        // --- BACKEND CALL ---
         async function fetchAiFact(city, lat, lng) {
             const statusText = document.getElementById('fact-text');
             const selectedLang = document.getElementById('lang-select').value;
-            
             statusText.innerText = "Consulting the Atlas...";
             
-            const url = '/.netlify/functions/get-fact'; 
-            
             try {
-                const response = await fetch(url, {
+                const response = await fetch('/.netlify/functions/get-fact', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    // Send Language!
                     body: JSON.stringify({ city, lat, lng, language: selectedLang })
                 });
-
-                if (!response.ok) throw new Error("Backend Error");
-
+                
                 const data = await response.json();
-                
-                // Parse AI Output (Expects a single JSON Object)
                 const aiText = data.candidates[0].content.parts[0].text;
-                
-                // Regex to find the JSON object { ... }
                 const jsonStart = aiText.indexOf('{');
                 const jsonEnd = aiText.lastIndexOf('}');
                 
                 if (jsonStart !== -1 && jsonEnd !== -1) {
                     const factData = JSON.parse(aiText.substring(jsonStart, jsonEnd + 1));
-                    
-                    // Display Fact
                     statusText.innerText = factData.text;
-                    
-                    // Update Source Link
                     const sourceLink = document.getElementById('source-link');
                     if (factData.source_term) {
                         sourceLink.href = `https://www.google.com/search?q=${encodeURIComponent(factData.source_term)}`;
                         sourceLink.style.display = 'inline-block';
                     }
-                } else {
-                    throw new Error("Invalid AI format");
                 }
-
             } catch (error) {
-                console.error(error);
                 statusText.innerText = "The AI is thinking too hard. Try another spot.";
             }
         }
 
-        // --- BUTTONS ---
         function refreshFact() {
             if (currentLocation) {
                 fetchAiFact(currentLocation.name, currentLocation.lat, currentLocation.lng);
@@ -336,21 +238,14 @@
                 flyToRandom();
             }
         }
-        
+
         function changeLanguage() {
-            if (currentLocation) {
-                refreshFact();
-            }
+            if (currentLocation) refreshFact();
         }
 
         function flyToRandom() {
-            // Hide welcome text and show fact area
-            document.getElementById('welcome-text').style.display = 'none';
-            document.getElementById('location-name-dynamic').style.display = 'block';
-            document.getElementById('fact-text').style.display = 'block';
-
+            switchToDynamicView();
             const randomCity = majorCities[Math.floor(Math.random() * majorCities.length)];
-            dropPin(randomCity.lng, randomCity.lat);
             handleLocationSelect(randomCity.lng, randomCity.lat);
         }
 
@@ -367,11 +262,7 @@
             }
         }
 
-        // --- MODALS ---
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        // --- COOKIES ---
+        // Cookie Banner
         if (!localStorage.getItem('cookiesAccepted')) {
             document.getElementById('cookie-banner').style.display = 'block';
         }
@@ -379,7 +270,7 @@
             localStorage.setItem('cookiesAccepted', 'true');
             document.getElementById('cookie-banner').style.display = 'none';
         });
-
     </script>
 </body>
 </html>
+
