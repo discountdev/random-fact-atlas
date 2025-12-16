@@ -30,9 +30,10 @@ exports.handler = async function(event, context) {
         You MUST write the response in this language: ${language}.
         
         Rules:
-        1. Length: Write a detailed paragraph (approx 50-80 words).
-        2. Tone: Educational but engaging.
-        3. Format: Return a strictly valid JSON object.
+        1. Length: Write a comprehensive, multi-sentence paragraph (approx 100-150 words).
+        2. Detail: Include deep historical, cultural, or geographical context.
+        3. Tone: Educational but engaging.
+        4. Format: Return a strictly valid JSON object.
         
         JSON Structure:
         {
